@@ -1,4 +1,4 @@
-﻿namespace Interface;
+﻿namespace InfraStructure;
 
 public class Class1
 {
