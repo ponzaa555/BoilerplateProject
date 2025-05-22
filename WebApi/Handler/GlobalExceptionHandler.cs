@@ -1,3 +1,4 @@
+using Application.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,15 +8,24 @@ namespace WebApi.Handler
     {
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            var problemDetial = new ProblemDetails
+            ErrorResponse error = new();
+            if (exception is BaseException baseException)
             {
-                Title = "An error occurred",
-                Status = StatusCodes.Status400BadRequest,
-                Detail = exception.Message
-            };
-            httpContext.Response.StatusCode = problemDetial.Status.Value;
-            await httpContext.Response.WriteAsJsonAsync(problemDetial,cancellationToken);
+                
+                   error.StatusCode = baseException.StatusCode;
+                   error. Message =  baseException.Message;
+                    error.ErrorAt = baseException.ErrorAt;
+            }else
+            {
+                error.StatusCode = 000;
+                error. Message =  "Un expect error";
+                error.ErrorAt = " Idon't knows";
+            }
+            httpContext.Response.StatusCode = error.StatusCode;
+            await httpContext.Response.WriteAsJsonAsync(error,cancellationToken);
             return true;
         }
+
+
     }
 }
