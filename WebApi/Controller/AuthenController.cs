@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Application.Exceptions;
 using Application.Features.Authentication.Commands.Login;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using WebApi.Handler;
 
 namespace WebApi.Controllers
 {
@@ -26,6 +30,10 @@ namespace WebApi.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginCommandRequest request)
         {
+            if(!ModelState.IsValid)
+            {   
+                throw new CustomValidation("Model error login" , ModelState);
+            }
             var command = new LoginCommand(request.Username , request.Password);
             var result = await _mediator.Send(command);
             return Ok(result);

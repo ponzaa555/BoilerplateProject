@@ -14,7 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
             .AddApplication()
             .AddInfrastructure()
             .AddControllers();
-    // Register the global exception handler
+    // Register the global exception handler 
+    // อ่านแบบไล่ลงนะ ไป ValidationExceptionHanler ละค่อยไป GlobalExceptionHandler ดังนั้นต้องใสากรณี true flase ไว้
+    builder.Services.AddExceptionHandler<ValidationExceptionHanler>();
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 }
 

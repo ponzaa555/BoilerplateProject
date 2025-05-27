@@ -17,7 +17,12 @@ namespace WebApi.Handler
         };
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            logger.LogError(exception ,exception is BaseException baseException ? baseException.Message : UnhandledExceptionMsg); 
+            if (exception is not BaseException)
+            {
+                // Log the exception
+                return false; // Return false to let other handlers process the exception
+            }
+            logger.LogError(exception.Message);
             var problemDetails = CreateProblemDetails(httpContext, exception);
             var json = ToJson(problemDetails);
 
