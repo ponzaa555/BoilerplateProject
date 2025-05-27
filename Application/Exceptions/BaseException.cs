@@ -10,6 +10,12 @@ namespace Application.Exceptions
         {
             StatusCode = statusCode;
         }
+        protected BaseException(BaseException baseException , string errorAt) : base(baseException.Message)
+        {
+            StatusCode = baseException.StatusCode;
+            ErrorAt = errorAt;
+            AddNote = baseException.AddNote;
+        }
         protected BaseException( int statusCode , string message , string errorAt) :base(message) 
         {
             StatusCode = statusCode;
@@ -21,12 +27,6 @@ namespace Application.Exceptions
             StatusCode = statusCode;
             ErrorAt = errorAt;   
             AddNote = note;
-        }
-        protected BaseException(BaseException baseException , string errorAt) : base(baseException.Message)
-        {
-            StatusCode = baseException.StatusCode;
-            ErrorAt = errorAt;
-            AddNote = baseException.AddNote;
         }
     }
 }
