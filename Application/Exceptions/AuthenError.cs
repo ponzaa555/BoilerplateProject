@@ -5,6 +5,7 @@ namespace Application.Exceptions
     public class AuthenError : BaseException
     {
         public static AuthenError AU001 {get;} = new AuthenError(((int)HttpStatusCode.BadRequest) , "Not found username");
+        public static AuthenError AU002 {get;} = new AuthenError(((int)HttpStatusCode.BadRequest) , "Duplicate username");
         public AuthenError(int statusCode , string message , string errorAt) : base(statusCode,message,errorAt)
         {
             
