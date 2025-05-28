@@ -1,7 +1,9 @@
 using Application;
 using InfraStructure;
 using InfraStructure.Repository;
+using Microsoft.EntityFrameworkCore;
 using WebApi.Handler;
+using WebApi.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 var app = builder.Build();
+
+// Test ConnectionDb with Pomelo
+TestDbConnecntion.PrintAllTableNames(app.Services);
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

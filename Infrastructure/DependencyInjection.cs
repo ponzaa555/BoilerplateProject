@@ -2,6 +2,7 @@ using InfraStructure.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.MySqlClient;
 
 namespace InfraStructure
 {
@@ -9,11 +10,29 @@ namespace InfraStructure
     {
         public static IServiceCollection AddInfrastructure (this IServiceCollection services , IConfiguration configuration)
         {
-            services.AddDbContext<AppDbContext>();
-            services.AddDbConnection(configuration);
-            return services;   
+            // services.AddDbContext<AppDbContext>();
+            // services.AddDbConnection(configuration);
+            services.AddDbContext(configuration);
+            return services;
         }
 
+        private static IServiceCollection AddDbContext(this IServiceCollection services , IConfiguration configuration)
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            var serverVersion = ServerVersion.AutoDetect(connectionString);
+             services.AddDbContext<AppDbContext>( options => 
+                {
+                     Console.WriteLine("🔧 Configuring AppDbContext...");
+                     options.UseMySql(connectionString, serverVersion)
+                            .EnableSensitiveDataLogging()
+                            .EnableDetailedErrors();
+                }
+            );
+            return services;   
+            // This method is intentionally left empty as a placeholder for future DbContext configuration.
+        }
+        /*
+        Test connection to MySQL database at startup
         private static IServiceCollection AddDbConnection(this IServiceCollection services, IConfiguration configuration)
         {
            var connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -27,6 +46,16 @@ namespace InfraStructure
                 connect.Open();
                 var testVersion = connect.ServerVersion;
                 Console.WriteLine("✅ Connected to DB at startup " + testVersion);
+                string query = "SHOW TABLES";
+                using (var command = new MySqlCommand(query, connect))
+                using (var reader = command.ExecuteReader())
+                {
+                    Console.WriteLine("📋 Tables in the database:");
+                    while (reader.Read())
+                    {
+                        Console.WriteLine(" - " + reader.GetString(0));
+                    }
+                }
                 connect.Close();
             }
             // Configure DbContext with MySQL 
@@ -45,5 +74,6 @@ namespace InfraStructure
            }
             return services;
         }
+        */
     }
 }
