@@ -1,5 +1,6 @@
 using Application;
 using InfraStructure;
+using InfraStructure.Repository;
 using WebApi.Handler;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddSwaggerGen();
     builder.Services
             .AddApplication()
-            .AddInfrastructure()
+            .AddInfrastructure(builder.Configuration)
             .AddControllers();
     // Register the global exception handler 
     // อ่านแบบไล่ลงนะ ไป ValidationExceptionHanler ละค่อยไป GlobalExceptionHandler ดังนั้นต้องใสากรณี true flase ไว้
@@ -22,8 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 
-var app = builder.Build();
 
+var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
