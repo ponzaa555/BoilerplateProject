@@ -1,6 +1,6 @@
-### ADD Migration with code base
+# ADD Migration with code base
 
-# Create model
+### Create model
 ```cs
 public class User
 {
@@ -19,7 +19,7 @@ public class User
     
 }
 ```
-# Set model to DbContext
+### Set model to DbContext
 ```cs
 public class ApplicationDbContext : DbContext
 {
@@ -27,18 +27,40 @@ public class ApplicationDbContext : DbContext
 
 }
 ```
-# use model to create migration
+### use model to create migration
 ```bash
 dotnet ef migrations add InitialCreate
 ```
-# add migration to database
+### add migration to database
 ```bash
 dotnet ef database update
 ```
-# Reverse Migrations
+### Reverse Migrations
 ```bash
 dotnet ef migrations list --project SchoolCheck.Infrastructure
 dotnet ef database update <PreviousMigrationName>  --project SchoolCheck.Infrastructure
 dotnet ef migrations remove --project SchoolCheck.Infrastructure
 ```
 
+# Add Config Entity to Table
+```cs
+using Domain.Entity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace InfraStructure.Configs;
+
+public class UserConfig : IEntityTypeConfiguration<User>
+{
+    public void Configure(EntityTypeBuilder<User> builder)
+    {
+        builder.ToTable("Users")
+            .HasCharSet("utf8mb4");
+
+        builder.Property(u => u.Id)
+            .HasColumnType("varchar(36)")
+            .IsRequired();
+    }
+}
+
+```

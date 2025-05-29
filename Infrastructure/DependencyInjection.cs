@@ -1,7 +1,10 @@
+using InfraStructure.helper.JwtToken;
 using InfraStructure.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using MySql.Data.MySqlClient;
 
 namespace InfraStructure
@@ -28,6 +31,42 @@ namespace InfraStructure
             return services;   
             // This method is intentionally left empty as a placeholder for future DbContext configuration.
         }
+        public static IServiceCollection AddJwtAuthen(this IServiceCollection services ,IConfiguration configuration)
+        {
+            // Add JWT authentication services here
+            // Example: services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //         .AddJwtBearer(options => { ... });
+            Console.WriteLine("🔧 Register Jwt Token");
+            // Get JWT settings from configuration
+            var jwtSetting = new JwtSetting();
+            // Copy the settings from the configuration to the JwtSetting object by matching the keys
+            configuration.Bind(JwtSetting.SectionName , jwtSetting);
+            
+            // Register JWT settings
+
+            // Configure JWT authentication
+            services.AddAuthentication(options => 
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddJwtBearer(options => 
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = true,
+                            ValidateAudience = true,
+                            ValidateLifetime = true,
+                            ValidateIssuerSigningKey = true,
+                            ValidIssuer = configuration["Jwt:Issuer"],
+                            ValidAudience = configuration["Jwt:Audience"],
+                            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+                        };
+                    }
+                );
+            return services;
+        }
+    }
+}
         /*
         Test connection to MySQL database at startup
         private static IServiceCollection AddDbConnection(this IServiceCollection services, IConfiguration configuration)
@@ -72,5 +111,3 @@ namespace InfraStructure
             return services;
         }
         */
-    }
-}
