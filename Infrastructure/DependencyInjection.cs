@@ -10,13 +10,10 @@ namespace InfraStructure
     {
         public static IServiceCollection AddInfrastructure (this IServiceCollection services , IConfiguration configuration)
         {
-            // services.AddDbContext<AppDbContext>();
-            // services.AddDbConnection(configuration);
-            services.AddDbContext(configuration);
+            services.AddDatabaseContext(configuration);
             return services;
         }
-
-        private static IServiceCollection AddDbContext(this IServiceCollection services , IConfiguration configuration)
+        private static IServiceCollection AddDatabaseContext(this IServiceCollection services , IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
             var serverVersion = ServerVersion.AutoDetect(connectionString);
