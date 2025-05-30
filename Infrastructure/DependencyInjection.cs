@@ -1,11 +1,14 @@
+using Application.Contract.Authentication;
+using Application.Contract.Datetime;
+using InfraStructure.helper.DateTimeProvider;
 using InfraStructure.helper.JwtToken;
 using InfraStructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MySql.Data.MySqlClient;
 
 namespace InfraStructure
 {
@@ -14,6 +17,18 @@ namespace InfraStructure
         public static IServiceCollection AddInfrastructure (this IServiceCollection services , IConfiguration configuration)
         {
             services.AddDatabaseContext(configuration);
+            services.AddJwtAuthen(configuration);
+            services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+            services.AddRepository();
+            return services;
+        }
+        private static IServiceCollection AddRepository(this IServiceCollection services)
+        {
+            Console.WriteLine("🔧 Register Repositories");
+            // Register repositories
+            Console.WriteLine("🔧 Register AuthenticationRepository");
+            services.AddScoped<IAuthentication, AuthenticationRepository>();
+            // Add other repositories here as needed
             return services;
         }
         private static IServiceCollection AddDatabaseContext(this IServiceCollection services , IConfiguration configuration)
@@ -33,17 +48,14 @@ namespace InfraStructure
         }
         public static IServiceCollection AddJwtAuthen(this IServiceCollection services ,IConfiguration configuration)
         {
-            // Add JWT authentication services here
-            // Example: services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //         .AddJwtBearer(options => { ... });
             Console.WriteLine("🔧 Register Jwt Token");
             // Get JWT settings from configuration
             var jwtSetting = new JwtSetting();
             // Copy the settings from the configuration to the JwtSetting object by matching the keys
             configuration.Bind(JwtSetting.SectionName , jwtSetting);
-            
             // Register JWT settings
-
+            services.AddSingleton(Options.Create(jwtSetting));
+            services.AddSingleton<IJwtTokenGenerator,JwtTokenGenerator>();
             // Configure JWT authentication
             services.AddAuthentication(options => 
                 {
@@ -57,9 +69,9 @@ namespace InfraStructure
                             ValidateAudience = true,
                             ValidateLifetime = true,
                             ValidateIssuerSigningKey = true,
-                            ValidIssuer = configuration["Jwt:Issuer"],
-                            ValidAudience = configuration["Jwt:Audience"],
-                            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+                            ValidIssuer = jwtSetting.Issuer,
+                            ValidAudience = jwtSetting.Audience,
+                            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSetting.Secret))
                         };
                     }
                 );

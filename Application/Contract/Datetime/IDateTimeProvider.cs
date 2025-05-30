@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Application.Contract
+namespace Application.Contract.Datetime
 {
-    public interface IAuthentication
+    public interface IDateTimeProvider
     {
-        
+        DateTime UtcNow { get; }
     }
 }
